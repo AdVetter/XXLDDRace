@@ -1243,7 +1243,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended)
 	p.AddString(aBuf, 6);
 
 	p.AddString(GameServer()->Version(), 32);
-	if (!Extended)
+	if (Extended)
 	{
 			p.AddString(g_Config.m_SvName, 256);
 	}

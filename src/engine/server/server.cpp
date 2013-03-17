@@ -1217,7 +1217,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	}
 }
 
-void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended)
+void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int Offset)
 {
 	CNetChunk Packet;
 	CPacker p;
@@ -1282,19 +1282,33 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended)
 		if (MaxClients > VANILLA_MAX_CLIENTS) MaxClients = VANILLA_MAX_CLIENTS;
 	}
 
-	if (PlayerCount > ClientCount) PlayerCount = ClientCount;
+	if (PlayerCount > ClientCount)
+		PlayerCount = ClientCount;
 
 	str_format(aBuf, sizeof(aBuf), "%d", PlayerCount); p.AddString(aBuf, 3); // num players
 	str_format(aBuf, sizeof(aBuf), "%d", MaxClients-g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
 	str_format(aBuf, sizeof(aBuf), "%d", ClientCount); p.AddString(aBuf, 3); // num clients
 	str_format(aBuf, sizeof(aBuf), "%d", MaxClients); p.AddString(aBuf, 3); // max clients
+
+	if (Extended)
+		p.AddInt(Offset);
+
+	int ClientsPerPacket = Extended ? 24 : VANILLA_MAX_CLIENTS;
+	int Skip = Offset;
+	int Take = ClientsPerPacket;
+
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
 		{
-			if (ClientCount-- == 0) break;
+			if (Skip-- > 0)
+				continue;
+			if (--Take < 0)
+				break;
+
 			p.AddString(ClientName(i), MAX_NAME_LENGTH); // client name
 			p.AddString(ClientClan(i), MAX_CLAN_LENGTH); // client clan
+
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Country); p.AddString(aBuf, 6); // client country
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Score); p.AddString(aBuf, 6); // client score
 			str_format(aBuf, sizeof(aBuf), "%d", GameServer()->IsClientPlayer(i)?1:0); p.AddString(aBuf, 2); // is player?
@@ -1307,6 +1321,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended)
 	Packet.m_DataSize = p.Size();
 	Packet.m_pData = p.Data();
 	m_NetServer.Send(&Packet);
+
+	if (Extended && Take < 0)
+		SendServerInfo(pAddr, Token, Extended, Offset + ClientsPerPacket);
 }
 
 void CServer::UpdateServerInfo()

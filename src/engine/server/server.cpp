@@ -52,7 +52,7 @@ static const char *StrUTF8Ltrim(const char *pStr)
 	{
 		const char *pStrOld = pStr;
 		int Code = str_utf8_decode(&pStr);
-		
+
 		// check if unicode is not empty
 		if(Code > 0x20 && Code != 0xA0 && Code != 0x034F && (Code < 0x2000 || Code > 0x200F) && (Code < 0x2028 || Code > 0x202F) &&
 			(Code < 0x205F || Code > 0x2064) && (Code < 0x206A || Code > 0x206F) && (Code < 0xFE00 || Code > 0xFE0F) &&
@@ -1017,17 +1017,19 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			{
 				char aBuf[256];
 
-
-				int Censor = 0;
-				int cCounter = 0;
+				unsigned Censor = 0;
+				unsigned cCounter = 0;
 				char reg[] = "register ";
 				char log[] = "login ";
 
+				unsigned LogLength = strlen(log),
+					RegLength = strlen(reg);
+
 				//Login
-				for (int i = 0; i < strlen(log)+1 ; i++)
+				for (unsigned i = 0; i < LogLength+1 ; i++)
 					if (log[i] == pCmd[i])
 						cCounter++;
-					else if(cCounter == strlen(log))
+					else if(cCounter == LogLength)
 					{
 						Censor = 1;
 						break;
@@ -1035,16 +1037,16 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					else
 						break;
 				//Register
-					for (int i = 0; i < strlen(reg)+1 ; i++)
-						if (reg[i] == pCmd[i])
-							cCounter++;
-						else if(cCounter == strlen(reg))
-						{
-							Censor = 2;
-							break;
-						}
-						else
-							break;
+				for (unsigned i = 0; i < RegLength+1 ; i++)
+					if (reg[i] == pCmd[i])
+						cCounter++;
+					else if(cCounter == RegLength)
+					{
+						Censor = 2;
+						break;
+					}
+					else
+						break;
 
 				if (Censor == 1)
 					str_format(aBuf, sizeof(aBuf), "ClientID=%d rcon='login ***'", ClientID, pCmd);

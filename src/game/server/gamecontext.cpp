@@ -825,16 +825,19 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			//Same in server.cpp
 			//TODO: XXLTomate: put this in a seperate file...
-			int Censor = 0;
-			int cCounter = 0;
+			unsigned Censor = 0;
+			unsigned cCounter = 0;
 			char reg[] = "register ";
 			char log[] = "login ";
 
+			unsigned LogLength = strlen(log),
+				RegLength = strlen(reg);
+
 			//Login
-			for (int i = 0; i < strlen(log)+1 ; i++)
+			for (unsigned i = 0; i < LogLength+1 ; i++)
 				if (log[i] == pMsg->m_pMessage[i+1])
 					cCounter++;
-				else if(cCounter == strlen(log))
+				else if(cCounter == LogLength)
 				{
 					Censor = 1;
 					break;
@@ -842,10 +845,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				else
 					break;
 			//Register
-			for (int i = 0; i < strlen(reg)+1 ; i++)
+			for (unsigned i = 0; i < RegLength+1 ; i++)
 				if (reg[i] == pMsg->m_pMessage[i+1])
 					cCounter++;
-				else if(cCounter == strlen(reg))
+				else if(cCounter == RegLength)
 				{
 					Censor = 2;
 					break;

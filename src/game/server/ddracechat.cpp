@@ -12,7 +12,7 @@
 
 bool CheckClientID(int ClientID);
 bool CheckRights(int ClientID, int Victim, CGameContext *GameContext);
-char* TimerType(int TimerType);
+const char* TimerType(int TimerType);
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
@@ -741,9 +741,9 @@ bool CheckClientID(int ClientID)
 	return true;
 }
 
-char* TimerType(int TimerType)
+const char* TimerType(int TimerType)
 {
-	char msg[3][128] = {"game/round timer.", "broadcast.", "both game/round timer and broadcast."};
+	const char* msg[3] = {"game/round timer.", "broadcast.", "both game/round timer and broadcast."};
 	return msg[TimerType];
 }
 void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
@@ -864,7 +864,6 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CCharacter* pChr = pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter();
-	char aBuf[256];
 
 	if (!g_Config.m_SvRescue){
 		pSelf->SendChatTarget(pResult->m_ClientID, "Rescue is not activated.");

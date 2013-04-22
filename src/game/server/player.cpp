@@ -44,19 +44,17 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 
 	//New Year
 	if (g_Config.m_SvEvents)
-	{	
+	{
 		time_t rawtime;
 		struct tm* timeinfo;
-		char d[16], m[16], y[16];
-		int dd, mm, yy;
+		char d[16], m[16];
+		int dd, mm;
 		time ( &rawtime );
 		timeinfo = localtime ( &rawtime );
-		strftime (d,sizeof(y),"%d",timeinfo);
+		strftime (d,sizeof(d),"%d",timeinfo);
 		strftime (m,sizeof(m),"%m",timeinfo);
-		strftime (y,sizeof(y),"%Y",timeinfo);
 		dd = atoi(d);
 		mm = atoi(m);
-		yy = atoi(y);
 		m_DefEmote = ((mm == 12 && dd == 31) || (mm == 1 && dd == 1)) ? EMOTE_HAPPY : EMOTE_NORMAL;
 	}
 	m_DefEmoteReset = -1;
@@ -230,7 +228,7 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Score = m_Score;
 	else
 		pPlayerInfo->m_Score = abs(m_Score) * -1;
-		
+
 	pPlayerInfo->m_Team = (m_Paused != PAUSED_SPEC || m_ClientID != SnappingClient) && m_Paused < PAUSED_PAUSED ? m_Team : TEAM_SPECTATORS;
 
 	if(m_ClientID == SnappingClient)

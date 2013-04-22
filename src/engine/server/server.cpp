@@ -1186,18 +1186,18 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 		{
 			if(g_Config.m_Debug)
 			{
-				char aHex[] = "0123456789ABCDEF";
-				char aBuf[512];
+				// char aHex[] = "0123456789ABCDEF";
+				// char aBuf[512];
 
-				for(int b = 0; b < pPacket->m_DataSize && b < 32; b++)
-				{
-					aBuf[b*3] = aHex[((const unsigned char *)pPacket->m_pData)[b]>>4];
-					aBuf[b*3+1] = aHex[((const unsigned char *)pPacket->m_pData)[b]&0xf];
-					aBuf[b*3+2] = ' ';
-					aBuf[b*3+3] = 0;
-				}
+				// for(int b = 0; b < pPacket->m_DataSize && b < 32; b++)
+				// {
+				// 	aBuf[b*3] = aHex[((const unsigned char *)pPacket->m_pData)[b]>>4];
+				// 	aBuf[b*3+1] = aHex[((const unsigned char *)pPacket->m_pData)[b]&0xf];
+				// 	aBuf[b*3+2] = ' ';
+				// 	aBuf[b*3+3] = 0;
+				// }
 
-				char aBufMsg[256];
+				// char aBufMsg[256];
 				//str_format(aBufMsg, sizeof(aBufMsg), "strange message ClientID=%d msg=%d data_size=%d", ClientID, Msg, pPacket->m_DataSize);
 				//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBufMsg);
 				//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
@@ -1323,12 +1323,12 @@ void CServer::PumpNetwork()
 			}
 			if (lastask[i]<lastsent[i]-g_Config.m_SvMapWindow)
 				continue;
-	
+
 			int Chunk = lastsent[i]++;
 			int ChunkSize = 1024-128;
 			int Offset = Chunk * ChunkSize;
 			int Last = 0;
-	
+
 			// drop faulty map data requests
 			if(Chunk < 0 || Offset > m_CurrentMapSize)
 				continue;
@@ -1339,7 +1339,7 @@ void CServer::PumpNetwork()
 					ChunkSize = 0;
 				Last = 1;
 			}
-	
+
 			CMsgPacker Msg(NETMSG_MAP_DATA);
 			Msg.AddInt(Last);
 			Msg.AddInt(m_CurrentMapCrc);
@@ -1347,7 +1347,7 @@ void CServer::PumpNetwork()
 			Msg.AddInt(ChunkSize);
 			Msg.AddRaw(&m_pCurrentMapData[Offset], ChunkSize);
 			SendMsgEx(&Msg, MSGFLAG_FLUSH, i, true);
-	
+
 			if(g_Config.m_Debug)
 			{
 				char aBuf[256];

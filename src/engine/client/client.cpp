@@ -769,7 +769,12 @@ void CClient::Render()
 {
 	// if(g_Config.m_GfxClear)
 	if(g_Config.m_ClShowEntities && g_Config.m_ClDDRaceCheats)
-		Graphics()->Clear(0.3f,0.3f,0.6f);
+	{
+		if (g_Config.m_ClShowEntities == 2)
+			Graphics()->Clear(0,0,0);
+		else
+			Graphics()->Clear(0.3f,0.3f,0.6f);
+	}
 	else if(g_Config.m_GfxClear)
 		Graphics()->Clear(1,1,0);
 

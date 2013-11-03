@@ -1024,12 +1024,19 @@ void CMenus::RenderSettingsDDRace(CUIRect MainView)
 		g_Config.m_ClDDRaceCheats ^= 1;
 	}
 
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_ClShowEntities, Localize("Cheat: Shows entities in game (can also be toggled via console cl_show_entities)"), g_Config.m_ClShowEntities && g_Config.m_ClDDRaceCheats, &Button))
+	if (g_Config.m_ClDDRaceCheats)
 	{
-		g_Config.m_ClShowEntities ^= 1;
+		CUIRect SubCheats;
+		MainView.HSplitTop(2.5f, 0, &MainView);
+		MainView.HSplitTop(20.0f, &SubCheats, &MainView);
+		SubCheats.VSplitLeft(30.0f, 0, &Button);
+		if(DoButton_CheckBox_DontCare(&g_Config.m_ClShowEntities, Localize("Cheat: Shows entities in game (can also be toggled via console cl_show_entities) \nBackground: X = blue, 0 = black"), g_Config.m_ClShowEntities, &Button))
+		{
+			g_Config.m_ClShowEntities = (g_Config.m_ClShowEntities + 1) % 3;
+		}
 	}
 
+	MainView.HSplitTop(10.0f, 0, &MainView);
 	MainView.HSplitTop(20.0f, &Button, &MainView);
 	if(DoButton_CheckBox(&g_Config.m_ClAutoRaceRecord, Localize("Enable save the best demo of each race"), g_Config.m_ClAutoRaceRecord, &Button))
 	{

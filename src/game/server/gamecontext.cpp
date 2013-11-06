@@ -813,7 +813,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		if(pMsg->m_pMessage[0]=='/')
 		{
-			if(ProcessSpamProtection(ClientID))
+			// Exclude /r from spam protection
+			if(strlen(pMsg->m_pMessage) != 2 && pMsg->m_pMessage[1] != 'r'
+					&& ProcessSpamProtection(ClientID))
 			{
 				SendChatTarget(ClientID, "Muted text:");
 				SendChatTarget(ClientID, pMsg->m_pMessage);

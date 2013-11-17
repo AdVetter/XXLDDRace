@@ -1240,7 +1240,11 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	p.Reset();
 
-	p.AddRaw(Extended?SERVERBROWSE_INFO64:SERVERBROWSE_INFO, sizeof(Extended?SERVERBROWSE_INFO64:SERVERBROWSE_INFO));
+	if (Extended)
+		p.AddRaw(SERVERBROWSE_INFO64, sizeof SERVERBROWSE_INFO64);
+	else
+		p.AddRaw(SERVERBROWSE_INFO, sizeof SERVERBROWSE_INFO);
+
 	str_format(aBuf, sizeof(aBuf), "%d", Token);
 	p.AddString(aBuf, 6);
 

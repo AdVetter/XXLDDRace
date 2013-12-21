@@ -252,6 +252,7 @@ public:
 	bool m_Bloody;
 	vec2 m_RescuePos;
 	int m_LastRescue;
+	bool m_Rescued;
 	int m_LastRescueSave;
 	bool m_IceHammer;
 	bool m_Fly;

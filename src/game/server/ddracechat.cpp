@@ -866,67 +866,68 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CCharacter* pChr = pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter();
-	char aBuf[256];
 
-	if (!g_Config.m_SvRescue){
+	if (!g_Config.m_SvRescue)
+	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Rescue is not activated.");
 		return;
 	}
 
-	if(pChr)
+	if(!pChr)
 	{
-		if (!pChr->m_LastRescue){
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are not alive!");
+		return;
+	}
 
-			float RescueDelay = 1.25;
-			if (pChr->m_FreezeTime == 0)
-				pSelf->SendChatTarget(pResult->m_ClientID, "You are not freezed!");
-			else if (pChr->m_DeepFreeze)
-				pSelf->SendChatTarget(pResult->m_ClientID, "You are deepfreezed, undeepfreeze first!");
-			else if (!pChr->IsAlive())
-				pSelf->SendChatTarget(pResult->m_ClientID, "You are not alive!");
-			else if (pChr->m_RescuePos == vec2 (0,0)) //hum
-				pSelf->SendChatTarget(pResult->m_ClientID, "No position saved!");
-			else
-			{
-				//not freezed
-				for(int i = 0;i <=(int)MAX_CLIENTS-1 ; i++)
-				{
-					if ( pSelf->m_apPlayers[i])
-					{
-						CCharacter* pChr2 = pSelf->m_apPlayers[i]->GetCharacter();
-						//who hooks me?
-						if (pChr2 && pChr2->Core()->m_HookedPlayer == pResult->m_ClientID)
-						{
-							//Release hook
-							pChr2->Core()->m_HookedPlayer = -1;
-							pChr2->Core()->m_HookState = HOOK_RETRACTED;
-							pChr2->Core()->m_HookPos = pChr2->Core()->m_Pos;
-						}
-					}
-				}
-				if(g_Config.m_SvRescueEffects)
-				{
-					//Blood effect
-					pChr->GameServer()->CreateDeath(pChr->m_Pos, pResult->m_ClientID);
-					//Spawn effect
-					pChr->GameServer()->CreatePlayerSpawn(pChr->m_RescuePos);
-				}
-				//"save" last rescue time
-				pChr->m_LastRescue = RescueDelay * pSelf->Server()->TickSpeed();
-				//Teleport player
-				pChr->Core()->m_Pos = pChr->m_RescuePos;
-			}
-		}
+	if (pChr->m_Rescued && pChr->m_TileIndex != TILE_FREEZE && pChr->m_TileFIndex != TILE_FREEZE)
+	{
+		pChr->UnFreeze();
+		pChr->m_Rescued = false;
+	}
+	else if (!pChr->m_LastRescue)
+	{
+		if (pChr->m_FreezeTime == 0)
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not freezed!");
+		else if (pChr->m_DeepFreeze)
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are deepfreezed, undeepfreeze first!");
+		else if (!pChr->IsAlive())
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not alive!");
+		else if (pChr->m_RescuePos == vec2 (0,0))
+			pSelf->SendChatTarget(pResult->m_ClientID, "No position saved!");
 		else
 		{
-			if (pChr->m_TileIndex != TILE_FREEZE && pChr->m_TileFIndex != TILE_FREEZE)
-				pChr->UnFreeze();
-			else
-				pChr->m_LastRescue = 0;
+			// Not freezed
+			for (int i = 0; i <= (int)MAX_CLIENTS - 1; i++)
+			{
+				if (pSelf->m_apPlayers[i])
+				{
+					CCharacter* pChr2 = pSelf->m_apPlayers[i]->GetCharacter();
+					// Who hooks me?
+					if (pChr2 && pChr2->Core()->m_HookedPlayer == pResult->m_ClientID)
+					{
+						// Release hook
+						pChr2->Core()->m_HookedPlayer = -1;
+						pChr2->Core()->m_HookState = HOOK_RETRACTED;
+						pChr2->Core()->m_HookPos = pChr2->Core()->m_Pos;
+					}
+				}
+			}
+			if(g_Config.m_SvRescueEffects)
+			{
+				// Blood effect
+				pChr->GameServer()->CreateDeath(pChr->m_Pos, pResult->m_ClientID);
+				// Spawn effect
+				pChr->GameServer()->CreatePlayerSpawn(pChr->m_RescuePos);
+			}
+
+			// Store last rescue
+			pChr->m_LastRescue = ((float)g_Config.m_SvRescueDelay / 1000) * pSelf->Server()->TickSpeed();
+			pChr->m_Rescued = true;
+
+			// Teleport player
+			pChr->Core()->m_Pos = pChr->m_RescuePos;
 		}
 	}
-	else
-		pSelf->SendChatTarget(pResult->m_ClientID, "You are not alive!");
 }
 
 void CGameContext::ConHelper(IConsole::IResult *pResult, void *pUserData)

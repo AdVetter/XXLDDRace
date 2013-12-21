@@ -226,6 +226,7 @@ MACRO_CONFIG_STR(SvRconSubAdminPassword, sv_rcon_subadmin_pass, 32, "", CFGFLAG_
 MACRO_CONFIG_STR(SvRconHelperPassword, sv_rcon_helper_password, 32, "", CFGFLAG_SERVER, "Remote console password for helpers (limited access)")
 MACRO_CONFIG_INT(SvDmgBlood, sv_dmg_blood, 0, 0, 1, CFGFLAG_SERVER, "Turns blood on damage on/off")
 MACRO_CONFIG_INT(SvRescue, sv_rescue, 0, 0, 1, CFGFLAG_SERVER, "Turns rescue /r on/off")
+MACRO_CONFIG_INT(SvRescueDelay, sv_rescue_delay, 100, 100, 600000, CFGFLAG_SERVER, "Set the delay between rescue in milliseconds")
 MACRO_CONFIG_INT(SvRescueEffects, sv_rescue_effect, 0, 0, 1, CFGFLAG_SERVER, "Turns rescue effects on/off")
 MACRO_CONFIG_INT(SvLolFilter, sv_lol_filter, 1, 0, 1, CFGFLAG_SERVER, "Turns 'lol' filter on/off")
 MACRO_CONFIG_INT(SvHelper, sv_helper, 1, 0, 1, CFGFLAG_SERVER, "Turns /helper on/off")

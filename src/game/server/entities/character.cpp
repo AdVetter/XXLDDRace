@@ -1940,7 +1940,8 @@ void CCharacter::XXLDDRaceTick(){
 
 void CCharacter::XXLDDRacePostCoreTick()
 {
-	if(m_pPlayer->m_RconFreeze) Freeze(-1);
+	if (m_pPlayer->m_RconFreeze) Freeze(-1);
+	if (!m_FreezeTime) m_Rescued = false;
 }
 
 void CCharacter::HandleBlood()

@@ -24,7 +24,7 @@ CMemberList::CPlayerMember::CPlayerMember(const char *pName, const char *pPass, 
 {
 	str_copy(m_aName, pName, sizeof(m_aName));
 	str_copy(m_aPass, pPass, sizeof(m_aPass));
-	m_AuthLvl = clamp(AuthLvl, -1, 3); //TODO: XXLTomate: AUTHED_ADMIN
+	m_AuthLvl = clamp(AuthLvl, -1, 4); //TODO: XXLTomate: AUTHED_ADMIN
 }
 
 CMemberList::CMemberList(CGameContext *pGameServer) : m_pGameServer(pGameServer), m_pServer((CServer*)pGameServer->Server())

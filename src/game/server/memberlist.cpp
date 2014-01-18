@@ -24,7 +24,7 @@ CMemberList::CPlayerMember::CPlayerMember(const char *pName, const char *pPass, 
 {
 	str_copy(m_aName, pName, sizeof(m_aName));
 	str_copy(m_aPass, pPass, sizeof(m_aPass));
-	m_AuthLvl = clamp(AuthLvl, -1, 4); //TODO: XXLTomate: AUTHED_ADMIN
+	m_AuthLvl = clamp(AuthLvl, -1, (int)CServer::AUTHED_ADMIN);
 }
 
 CMemberList::CMemberList(CGameContext *pGameServer) : m_pGameServer(pGameServer), m_pServer((CServer*)pGameServer->Server())
@@ -135,7 +135,7 @@ void CMemberList::UpdatePlayer(int ClientID, const char* pPass, int AuthLvl)
 
 	if(pPlayer)
 	{
-		pPlayer->m_AuthLvl = clamp(AuthLvl, -1, (int)m_pServer->AUTHED_ADMIN);
+		pPlayer->m_AuthLvl = clamp(AuthLvl, -1, (int)CServer::AUTHED_ADMIN);
 		str_copy(pPlayer->m_aName, pName, sizeof(pPlayer->m_aName));
 		str_copy(pPlayer->m_aPass, pPass, sizeof(pPlayer->m_aPass));
 

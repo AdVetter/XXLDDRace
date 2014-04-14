@@ -210,7 +210,15 @@ void CMemberList::Register(int ClientID, const char* pPass, CGameContext *pSelf)
 		str_format(aBuf, sizeof(aBuf), "Registration successful.");
 	}
 	else
-		str_format(aBuf, sizeof(aBuf), "%s is already a registered name.", pSelf->Server()->ClientName(ClientID));
+	{
+		if (pSelf->m_apPlayers[ClientID]->m_IsLoggedIn)
+		{
+			UpdatePlayer(ClientID, md5(pPass).c_str(), pSelf->m_apPlayers[ClientID]->m_Authed);
+			str_format(aBuf, sizeof(aBuf), "Password changed.");
+		}
+		else
+			str_format(aBuf, sizeof(aBuf), "%s is already a registered name.", pSelf->Server()->ClientName(ClientID));
+	}
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "member", aBuf);
 }
@@ -257,7 +265,7 @@ void CMemberList::Member(int ClientID, CGameContext *pSelf)
 	else
 	{
 		if (pPlayer->m_AuthLvl > 0)
-			str_format(aBuf, sizeof(aBuf), "%s has a higher rank, he is already member.", pSelf->Server()->ClientName(ClientID));
+			str_format(aBuf, sizeof(aBuf), "%s has a higher rank / is already member.", pSelf->Server()->ClientName(ClientID));
 		else if (pPlayer->m_AuthLvl == 0)
 			str_format(aBuf, sizeof(aBuf), "%s is already member.", pSelf->Server()->ClientName(ClientID));
 		else

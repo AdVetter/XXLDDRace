@@ -240,4 +240,6 @@ MACRO_CONFIG_INT(SvFainbowFeet, sv_rainbow_feet, 0, 0, 1, CFGFLAG_SERVER, "The f
 
 MACRO_CONFIG_INT(SvEvents, sv_events, 1, 0, 1, CFGFLAG_SERVER, "Enable triggering of server events, like the happy eyeemotes on some holidays.")
 
+MACRO_CONFIG_INT(SvSpoofProtection, sv_spoof_protection, 0, 0, 1, CFGFLAG_SERVER, "Enable spoof protection")
+
 #endif

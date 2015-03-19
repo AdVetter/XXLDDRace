@@ -1,3 +1,4 @@
+
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
@@ -106,7 +107,7 @@ class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 	return m_apPlayers[ClientID]->GetCharacter();
 }
 
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int Mask)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
 {
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
@@ -125,7 +126,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int Mask)
 	}
 }
 
-void CGameContext::CreateHammerHit(vec2 Pos, int Mask)
+void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 {
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
@@ -137,7 +138,7 @@ void CGameContext::CreateHammerHit(vec2 Pos, int Mask)
 }
 
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int Mask)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
@@ -188,7 +189,7 @@ void create_smoke(vec2 Pos)
 	}
 }*/
 
-void CGameContext::CreatePlayerSpawn(vec2 Pos, int Mask)
+void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
@@ -199,7 +200,7 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int Mask)
 	}
 }
 
-void CGameContext::CreateDeath(vec2 Pos, int ClientID, int Mask)
+void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
@@ -211,7 +212,7 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int Mask)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 {
 	if (Sound < 0)
 		return;
@@ -674,7 +675,7 @@ void CGameContext::OnClientEnter(int ClientID)
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
-		SendChatTarget(ClientID, "   XXLDDrace "  XXL_VERSION " by XXLTomate");
+		SendChatTarget(ClientID, "   XXLDDrace64 "  XXL_VERSION " by XXLTomate");
 		SendChatTarget(ClientID, "   DDRace-mod with some extras.");
 		SendChatTarget(ClientID, "   For more info write /info");
 
@@ -1018,6 +1019,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 
 			int KickID = str_toint(pMsg->m_Value);
+			if (!Server()->ReverseTranslate(KickID, ClientID))
+				return;
+
 			if(KickID < 0 || KickID >= MAX_CLIENTS || !m_apPlayers[KickID])
 			{
 				SendChatTarget(ClientID, "Invalid client id to kick");
@@ -1075,6 +1079,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 
 			int SpectateID = str_toint(pMsg->m_Value);
+			if (!Server()->ReverseTranslate(SpectateID, ClientID))
+				return;
+
 			if(SpectateID < 0 || SpectateID >= MAX_CLIENTS || !m_apPlayers[SpectateID] || m_apPlayers[SpectateID]->GetTeam() == TEAM_SPECTATORS)
 			{
 				SendChatTarget(ClientID, "Invalid client id to move");
@@ -1224,11 +1231,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_ShowOthers = (bool)pMsg->m_Show;
 		}
 	}
+	else if (MsgID == NETMSGTYPE_CL_ISDDRACE64)
+	{
+		Server()->SetCustClt(ClientID);
+	}
 	else if (MsgID == NETMSGTYPE_CL_SETSPECTATORMODE && !m_World.m_Paused)
 	{
 		CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
 
-		if((pPlayer->GetTeam() != TEAM_SPECTATORS && !pPlayer->m_Paused) || pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
+		if(pMsg->m_SpectatorID != SPEC_FREEVIEW)
+			if (!Server()->ReverseTranslate(pMsg->m_SpectatorID, ClientID))
+				return;
+		if(pPlayer->GetTeam() != TEAM_SPECTATORS || pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
 			(g_Config.m_SvSpamprotection && pPlayer->m_LastSetSpectatorMode && pPlayer->m_LastSetSpectatorMode+Server()->TickSpeed()*3 > Server()->Tick()))
 			return;
 
@@ -1339,7 +1353,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 	else if (MsgID == NETMSGTYPE_CL_CHANGEINFO)
 	{
 		if(g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo && pPlayer->m_LastChangeInfo+Server()->TickSpeed()*g_Config.m_SvInfoChangeDelay > Server()->Tick())
+		{
+			if (pPlayer->m_LastChangeInfo < Server()->Tick())
+				pPlayer->m_LastChangeInfo += Server()->TickSpeed()/2;
 			return;
+		}
 
 		CNetMsg_Cl_ChangeInfo *pMsg = (CNetMsg_Cl_ChangeInfo *)pRawMsg;
 		pPlayer->m_LastChangeInfo = Server()->Tick();
@@ -1373,6 +1391,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		pPlayer->m_TeeInfos.m_UseCustomColor = pMsg->m_UseCustomColor;
 		pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 		pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
+		pPlayer->FindDuplicateSkins();
 		//m_pController->OnPlayerInfoChange(pPlayer);
 	}
 	else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
@@ -1779,6 +1798,7 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 	else if(str_comp_nocase(pType, "kick") == 0)
 	{
 		int KickID = str_toint(pValue);
+		//Server()->ReverseTranslate(KickID, ClientID);
 		if(KickID < 0 || KickID >= MAX_CLIENTS || !pSelf->m_apPlayers[KickID])
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Invalid client id to kick");
@@ -1801,6 +1821,7 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 	else if(str_comp_nocase(pType, "spectate") == 0)
 	{
 		int SpectateID = str_toint(pValue);
+		//Server()->ReverseTranslate(SpectateID, ClientID);
 		if(SpectateID < 0 || SpectateID >= MAX_CLIENTS || !pSelf->m_apPlayers[SpectateID] || pSelf->m_apPlayers[SpectateID]->GetTeam() == TEAM_SPECTATORS)
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Invalid client id to move");
@@ -2126,6 +2147,8 @@ void CGameContext::OnSnap(int ClientID)
 		if(m_apPlayers[i])
 			m_apPlayers[i]->Snap(ClientID);
 	}
+	m_apPlayers[ClientID]->FakeSnap(ClientID);
+
 }
 void CGameContext::OnPreSnap() {}
 void CGameContext::OnPostSnap()
@@ -2287,4 +2310,45 @@ void CGameContext::ResetTuning()
 	Tuning()->Set("shotgun_speeddiff", 0);
 	Tuning()->Set("shotgun_curvature", 0);
 	SendTuningParams(-1);
+}
+
+void CGameContext::List(int ClientID, const char* filter)
+{
+	int total = 0;
+	char buf[256];
+	int bufcnt = 0;
+	if (filter[0])
+		str_format(buf, sizeof(buf), "Listing players with \"%s\" in name:", filter);
+	else
+		str_format(buf, sizeof(buf), "Listing all players:", filter);
+	SendChatTarget(ClientID, buf);
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_apPlayers[i])
+		{
+			total++;
+			const char* name = Server()->ClientName(i);
+			if (str_find_nocase(name, filter) == NULL)
+				continue;
+			if (bufcnt + str_length(name) + 4 > 256)
+			{
+				SendChatTarget(ClientID, buf);
+				bufcnt = 0;
+			}
+			if (bufcnt != 0)
+			{
+				str_format(&buf[bufcnt], sizeof(buf) - bufcnt, ", %s", name);
+				bufcnt += 2 + str_length(name);
+			}
+			else
+			{
+				str_format(&buf[bufcnt], sizeof(buf) - bufcnt, "%s", name);
+				bufcnt += str_length(name);
+			}
+		}
+	}
+	if (bufcnt != 0)
+		SendChatTarget(ClientID, buf);
+	str_format(buf, sizeof(buf), "%d players online", total);
+	SendChatTarget(ClientID, buf);
 }

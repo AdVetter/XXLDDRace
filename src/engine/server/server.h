@@ -144,9 +144,11 @@ public:
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 
 		void Reset();
+		bool m_CustClt;
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
+	int IdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
 
 	CSnapshotDelta m_SnapshotDelta;
 	CSnapshotBuilder m_SnapshotBuilder;
@@ -226,7 +228,7 @@ public:
 
 	void ProcessClientPacket(CNetChunk *pPacket);
 
-	void SendServerInfo(const NETADDR *pAddr, int Token);
+	void SendServerInfo(const NETADDR *pAddr, int Token, bool Extended=false, int Offset=0);
 	void UpdateServerInfo();
 
 	void PumpNetwork();
@@ -263,6 +265,9 @@ public:
 	int m_aPrevStates[MAX_CLIENTS];
 	char *GetAnnouncementLine(char const *FileName);
 	unsigned m_AnnouncementLastLine;
+
+	virtual int* GetIdMap(int ClientID);
+	virtual void SetCustClt(int ClientID);
 
 	//XXLDDRace
 	void SetRconLevel(int ClientID, int Level);

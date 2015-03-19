@@ -29,6 +29,9 @@ CONSOLE_COMMAND("move", "ii", CFGFLAG_SERVER|CMDFLAG_TEST, ConMove, this, "Moves
 CONSOLE_COMMAND("move_raw", "ii", CFGFLAG_SERVER|CMDFLAG_TEST, ConMoveRaw, this, "Moves you relative to your position to the point with x/y-coordinates ii")
 CONSOLE_COMMAND("force_pause", "vi", CFGFLAG_SERVER, ConForcePause, this, "Force v to pause for i seconds")
 CONSOLE_COMMAND("force_unpause", "v", CFGFLAG_SERVER, ConForcePause, this, "Set force-pause timer of v to 0.")
+CONSOLE_COMMAND("showothers", "?i", CFGFLAG_CHAT, ConShowOthers, this, "Whether to showplayers from other teams or not (off by default), optional i = 0 for off else for on")
+
+CONSOLE_COMMAND("list", "?s", CFGFLAG_CHAT, ConList, this, "List connected players with optional case-insensitive substring matching filter")
 
 CONSOLE_COMMAND("mute", "", CFGFLAG_SERVER, ConMute, this, "");
 CONSOLE_COMMAND("muteid", "vi", CFGFLAG_SERVER, ConMuteID, this, "");

@@ -3,5 +3,5 @@
 #ifndef GAME_MODE_H
 #define GAME_MODE_H
 
-#define GAME_NAME "XXLDDRace"
+#define GAME_NAME "XXLDDRace64"
 #endif

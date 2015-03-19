@@ -43,7 +43,9 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"-->XXLDDRace<--");
+			"-->XXLDDRace64<--");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+			"A XXLDDRace version for 64 Players");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Mod by XXLTomate based on");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",

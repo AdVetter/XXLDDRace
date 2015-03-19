@@ -381,4 +381,6 @@ Messages = [
 	NetMessage("Cl_ShowOthers", [
 		NetBool("m_Show"),
 	]),
+
+	NetMessage("Cl_IsDDRace64", []),
 ]

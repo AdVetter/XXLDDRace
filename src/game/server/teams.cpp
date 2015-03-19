@@ -224,15 +224,15 @@ bool CGameTeams::TeamFinished(int Team)
 	return true;
 }
 
-int CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
+int64_t CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
 {
 	if (Team == TEAM_SUPER)
 		return -1;
 	if (m_Core.GetSolo(Asker) && ExceptID == Asker)
 		return 0;
 	if (m_Core.GetSolo(Asker))
-		return 1 << Asker;
-	int Mask = 0;
+		return 1LL << Asker;
+	int64_t Mask = 0;
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (i != ExceptID)
 			if ((Asker == i || !m_Core.GetSolo(i))
@@ -240,7 +240,7 @@ int CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
 							&& (m_Core.Team(i) == Team
 									|| m_Core.Team(i) == TEAM_SUPER))
 							|| (GetPlayer(i) && GetPlayer(i)->GetTeam() == -1)))
-				Mask |= 1 << i;
+				Mask |= 1LL << i;
 	return Mask;
 }
 

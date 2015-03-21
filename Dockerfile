@@ -1,8 +1,10 @@
 FROM debian
-EXPOSE 8303
+EXPOSE 8303/udp
+ENV PATH="/usr/games/XXLDDRACE:$PATH"
 RUN apt-get update && apt-get install -y \
    bam \
-   build-essentials
+   build-essential \
+   python
 COPY . /usr/games/XXLDDRACE
 WORKDIR /usr/games/XXLDDRACE
 RUN bam server_release \

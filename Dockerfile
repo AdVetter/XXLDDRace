@@ -10,4 +10,7 @@ WORKDIR /usr/games/XXLDDRACE
 RUN bam server_release \
    && rm storage.cfg \
    && bash -c "echo add_path /usr/games/XXLDDRACE/config >> storage.cfg" \
-   && bash -c "echo add_path /usr/games/XXLDDRACE/config/data >> storage.cfg"
+   && bash -c "echo add_path /usr/games/XXLDDRACE/config/data >> storage.cfg" \
+   && apt-get purge -y bam \
+   build-essential \
+   python

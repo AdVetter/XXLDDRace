@@ -3,8 +3,6 @@ MAINTAINER xxltomate <xxl-clan.com>
 ENTRYPOINT ["XXLDDRace-Server_64"]
 # forward this to the external port you wanna use 
 EXPOSE 8303/udp
-# config directory, at least an autoexec.cfg file and data directory expected
-VOLUME ["/usr/games/XXLDDRACE/config"]
 ENV PATH="/usr/games/XXLDDRACE:$PATH"
 # install dependencies
 RUN apt-get update && apt-get install -y \

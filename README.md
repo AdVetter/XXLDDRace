@@ -8,7 +8,7 @@ This is an improved version of DDRace, a mod for the game teeworlds, with block 
 
 
 First, pull the latest binary with
-   docker pull xxlddrace
+   docker pull xxltomate/xxlddrace
 Then run it, and forward the docker port 8303 to the external port you want to use, but REMEMBER, in your autoexec.cfg you have to write port 8303. You also have to specify your config directory (containing autoexec.cfg and data directory) as volume, which the docker container can use. If you don't know what to write, please read the docker documentation first.
 
 
